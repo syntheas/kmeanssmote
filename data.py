@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import dill
 import h5py
+from scipy import sparse
 
 
 # Get the directory of the executing Python file
@@ -21,8 +22,9 @@ dataout_folder= str(script_dir / "output/features4ausw4linearsvc_trainsampled.h5
 
 def get_data():
     df = load_df(datatrain_path)
-    vectorizer, selector = load_dependence()
-    X, X_feature_names = get_x(df, vectorizer, selector)
+    # vectorizer, selector = load_dependence()
+    # X, X_feature_names = get_x(df, vectorizer, selector)
+    X, X_feature_names = get_x2(df)
     y = df["impact"]
     
     return X, y, X_feature_names
@@ -50,11 +52,24 @@ def get_x(df, vectorizer, selector):
 
     return X, X_feature_names
 
+def get_x2(df):
+    # without combined tks
+
+    # Define features and target variable
+    X_vec1 = df.drop(columns=["impact"])  # Drop non-numeric columns
+    # Convert boolean columns to numeric (0 and 1)
+    X_vec1 = X_vec1.astype(int)
+
+    X_vec1_feature_names = X_vec1.columns
+
+    X = hstack([sparse.csr_matrix(X_vec1)])
+
+    return X, X_vec1_feature_names
+
 def load_df(path):
     # Load the dataset
     df = pd.read_csv(datatrain_path)  # Replace with your actual file path
-    df.drop(columns="id", inplace=True)
-    df['combined_tks'].fillna(' ', inplace=True)
+    df.drop(columns=["id", 'combined_tks'], inplace=True)
     
     return df
 
