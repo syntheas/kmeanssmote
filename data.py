@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 import pandas as pd
 from pathlib import Path
-from sklearn.feature_extraction.text import TfidfVectorizer
+from pythelpers.ml.tfidfvectorizer import TfidfVectorizer
 from scipy.sparse import hstack
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
@@ -14,22 +14,22 @@ import h5py
 # Get the directory of the executing Python file
 script_dir = Path(__file__).parent.resolve()
 data_folder= Path(script_dir / "input")
-dependence_path = str(data_folder / "dependence_{}.pkl")
+dependence_path = str(data_folder / "ausw_dependence_{}.pkl")
 
-datatrain_path = str(data_folder / "features4dringl4linearsvc_train.csv")
-dataout_folder= str(script_dir / "output/features4dringl4linearsvc_trainsampled.h5")
+datatrain_path = str(data_folder / "features4ausw4linearsvc_train.csv")
+dataout_folder= str(script_dir / "output/features4ausw4linearsvc_trainsampled.h5")
 
 def get_data():
     df = load_df(datatrain_path)
     vectorizer, selector = load_dependence()
     X, X_feature_names = get_x(df, vectorizer, selector)
-    y = df["urgency"]
+    y = df["impact"]
     
     return X, y, X_feature_names
 
 def get_x(df, vectorizer, selector):
     # Define features and target variable
-    X_vec1 = df.drop(columns=["urgency", "combined_tks"])  # Drop non-numeric columns
+    X_vec1 = df.drop(columns=["impact", "combined_tks"])  # Drop non-numeric columns
     # Convert boolean columns to numeric (0 and 1)
     X_vec1 = X_vec1.astype(int)
 
@@ -61,8 +61,7 @@ def load_df(path):
 def load_dependence():
     with open(dependence_path.format("featureselector"), "rb") as f:
         selector = dill.load(f)
-    with open(dependence_path.format("vectorizer"), "rb") as f:
-        vectorizer = dill.load(f)
+    vectorizer = TfidfVectorizer.load(dependence_path.format("vectorizer"))
 
     return vectorizer, selector
 
