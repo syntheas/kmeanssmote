@@ -17,14 +17,15 @@ script_dir = Path(__file__).parent.resolve()
 data_folder= Path(script_dir / "input")
 dependence_path = str(data_folder / "ausw_dependence_{}.pkl")
 
-datatrain_path = str(data_folder / "features4ausw4linearsvc_train.csv")
+datatrain_path = str(data_folder / "features4ausw4linearsvc_trainscaled.csv")
 dataout_folder= str(script_dir / "output/features4ausw4linearsvc_trainsampled.h5")
+
 
 def get_data():
     df = load_df(datatrain_path)
-    # vectorizer, selector = load_dependence()
-    # X, X_feature_names = get_x(df, vectorizer, selector)
-    X, X_feature_names = get_x2(df)
+    vectorizer, selector = load_dependence()
+    X, X_feature_names = get_x(df, vectorizer, selector)
+    # X, X_feature_names = get_x2(df)
     y = df["impact"]
     
     return X, y, X_feature_names
@@ -69,7 +70,7 @@ def get_x2(df):
 def load_df(path):
     # Load the dataset
     df = pd.read_csv(datatrain_path)  # Replace with your actual file path
-    df.drop(columns=["id", 'combined_tks'], inplace=True)
+    df.drop(columns=["id"], inplace=True)
     
     return df
 
